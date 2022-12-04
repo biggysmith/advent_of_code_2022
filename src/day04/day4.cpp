@@ -48,14 +48,14 @@ assignments_t load_input(const std::string& file){
 }
 
 int part1(const assignments_t& assignments) {
-    return std::accumulate(assignments.begin(), assignments.end(), 0, [](auto& sum, auto& a){
-        return sum + is_subset(a);
+    return std::count_if(assignments.begin(), assignments.end(), [](auto& a){
+        return is_subset(a);
     });
 }
 
-int part2(const assignments_t& assignments) {  
-    return std::accumulate(assignments.begin(), assignments.end(), 0, [](auto& sum, auto& a){
-        return sum + is_overlapping(a);
+int64_t part2(const assignments_t& assignments) {  
+    return std::count_if(assignments.begin(), assignments.end(), [](auto& a){
+        return is_overlapping(a);
     });
 }
 
