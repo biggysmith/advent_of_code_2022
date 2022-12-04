@@ -47,13 +47,13 @@ assignments_t load_input(const std::string& file){
     return ret;
 }
 
-int part1(const assignments_t& assignments) {
+auto part1(const assignments_t& assignments) {
     return std::count_if(assignments.begin(), assignments.end(), [](auto& a){
         return is_subset(a);
     });
-}
+} 
 
-int64_t part2(const assignments_t& assignments) {  
+auto part2(const assignments_t& assignments) {  
     return std::count_if(assignments.begin(), assignments.end(), [](auto& a){
         return is_overlapping(a);
     });
