@@ -129,8 +129,8 @@ auto part2(const instructions_t& instructions)
 {  
     node_t root = fill_tree(instructions);
 
-    int total_space = 70000000;
-    int needed_space = 30000000;
+    int total_space = 70'000'000;
+    int needed_space = 30'000'000;
 
     std::map<std::string,int> dir_size_map;
     int space_used = calculate_dir_size(root, dir_size_map);
