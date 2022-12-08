@@ -80,7 +80,7 @@ int count_visible(const trees_t& trees, int x, int y)
     auto count_trees = [&](int begin,int end,int step,bool xdir){
         int count = 0;
         for(int i=begin; i!=end; i+=step, ++count){
-            if(height <= trees(xdir ? i : x, xdir ? y : i)){
+            if(trees(xdir ? i : x, xdir ? y : i) >= height){
                 ++count;
                 break;
             }
