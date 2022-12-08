@@ -43,7 +43,7 @@ bool is_visible(const trees_t& trees, int x, int y)
 
     auto check_dir = [&](int begin,int end,int step,bool xdir){
         for(int i=begin; i!=end; i+=step){
-            if(height <= trees(xdir ? i : x, xdir ? y : i)){
+            if(trees(xdir ? i : x, xdir ? y : i) >= height){
                 return false;
             }
         }
