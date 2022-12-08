@@ -96,8 +96,6 @@ int count_visible(const trees_t& trees, int x, int y)
 
 auto part2(const trees_t& trees) 
 {  
-    int test = count_visible(trees,2,3);
-
     int best = 0;
     for(int y=0; y<trees.height; ++y){
         for(int x=0; x<trees.width; ++x){
