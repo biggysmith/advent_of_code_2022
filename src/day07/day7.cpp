@@ -104,23 +104,13 @@ auto part2(const instructions_t& instructions)
     std::map<std::string,int> dir_size_map;
     int space_used = calculate_dir_size(root, dir_size_map);
 
-    int unused_space = total_space - space_used;
-
     std::set<int> dir_sizes;
     for(auto& [name,size] : dir_size_map){
         dir_sizes.insert(size);
     }
 
-    int smallest_dir_size = 0;
-    for(auto& size : dir_sizes){
-        int updated_unused_space = unused_space + size;
-        if(updated_unused_space >= needed_space){
-            smallest_dir_size = size;
-            break;
-        }
-    }
-
-    return smallest_dir_size;
+    int space_we_need_to_delete = space_used - (total_space - needed_space);
+    return *std::lower_bound(dir_sizes.begin(), dir_sizes.end(), space_we_need_to_delete);
 }
 
 void main()
