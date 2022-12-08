@@ -32,6 +32,38 @@ struct node_t {
     std::map<std::string,node_t> nodes;
 };
 
+bool is_cmd(const std::string& in){
+    return in[0] == '$';
+}
+
+bool is_cd(const std::string& in){
+    return in.substr(2,2) == "cd";
+}
+
+bool is_file(const std::string& in){
+    return isdigit(in[0]);
+}
+
+std::string get_dir(const std::string& in){
+    return in.substr(5);
+}
+
+std::string move_out(const std::string& cwd){
+    return cwd.substr(0,cwd.find_last_of("/"));
+}
+
+std::string move_in(const std::string& cwd,const std::string& dir){
+    return cwd + "/" + dir;
+}
+
+std::string file_name(const std::string& in){
+    return in.substr(in.find_first_of(' ')+1);
+}
+
+int file_size(const std::string& in){
+    return std::stoi(in.substr(0,in.find_first_of(' ')));
+}
+
 node_t fill_tree(const instructions_t& instructions)
 {
     node_t root;
@@ -39,42 +71,41 @@ node_t fill_tree(const instructions_t& instructions)
     std::string cwd = "";
         
     for(auto& in : instructions){
-        if(in[0] == '$'){
-            if(in.substr(2,2) == "cd"){
-                std::string dir = in.substr(5);
+        if(is_cmd(in)){
+            if(is_cd(in)){
+                std::string dir = get_dir(in);
                 if(dir == ".."){
-                    cwd = cwd.substr(0,cwd.find_last_of("/"));
+                    cwd = move_out(cwd);
                     current = current->parent_dir;
                 }else{
-                    cwd += "/" + dir;
+                    cwd = move_in(cwd, dir);
                     current->nodes[cwd] = { cwd, e_dir, 0, current };
                     current = &current->nodes[cwd];
                 }
             }
-        }else if(isdigit(in[0])){
-            int file_size = std::stoi(in.substr(0,in.find_first_of(' ')));
-            std::string file_name = cwd + "/" + in.substr(in.find_first_of(' ')+1);
-
-            current->nodes[file_name] = { file_name, e_file, file_size, current };
+        }else if(is_file(in)){
+            std::string name = cwd + "/" + file_name(in);
+            current->nodes[name] = { name, e_file, file_size(in), current };
         }
     }
 
     return root;
 }
 
-int calculate_dir_size(const node_t& dir, std::map<std::string,int>& dir_sizes){
-    int dir_size = 0;
+int calculate_dir_size(const node_t& dir, std::map<std::string,int>& dir_sizes)
+{
+    int size = 0;
 
     for(auto& [name,node] : dir.nodes){
         if(node.type == e_file){
-            dir_size += node.size;
+            size += node.size;
         }else{
             dir_sizes[node.name] = calculate_dir_size(node, dir_sizes);
-            dir_size += dir_sizes[node.name];
+            size += dir_sizes[node.name];
         }
     }
 
-    return dir_size;
+    return size;
 }
 
 auto part1(const instructions_t& instructions) 
