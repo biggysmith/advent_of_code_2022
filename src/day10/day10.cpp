@@ -65,7 +65,7 @@ auto part2(const instructions_t& instructions)
     std::cout << '\n';
     run(instructions, [&](int cycle, int X){
         int pos = cycle % 40;
-        std::cout << (pos >= X && pos < (X+3) ? "#" : ".") << (pos == 0 ? "\n" : "");
+        std::cout << (pos >= X && pos < (X+3) ? '#' : '.') << (pos == 0 ? "\n" : "");
     });
 
     return "";
