@@ -34,15 +34,15 @@ void run(const instructions_t& instructions, const std::function<void(int,int)>&
     int X = 1;
     int cycle = 1;
 
-    for(int i=0; i<instructions.size(); ++i)
+    for(auto& in : instructions)
     {
-        int steps = instructions[i].cmd == e_addx ? 2 : 1;
+        int steps = in.cmd == e_addx ? 2 : 1;
         for(int j=0; j<steps; ++j, ++cycle)
         {
             func(cycle, X);
 
             if(j==1){
-                X += instructions[i].arg;
+                X += in.arg;
             }
         }
     }
