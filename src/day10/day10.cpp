@@ -62,21 +62,11 @@ auto part1(const instructions_t& instructions)
 
 auto part2(const instructions_t& instructions) 
 {  
-    int w = 40;
-    int h = 6;
-    std::vector<char> screen(w*h, '.');
-
+    std::cout << '\n';
     run(instructions, [&](int cycle, int X){
-        int pos = cycle % w;
-        if(pos >= X && pos < (X+3)){
-            screen[cycle-1] = '#';
-        }
+        int pos = cycle % 40;
+        std::cout << (pos >= X && pos < (X+3) ? "#" : ".") << (pos == 0 ? "\n" : "");
     });
-
-    std::cout << std::endl;
-    for(int y=0; y<h; ++y){
-        std::cout << std::string_view(screen.data()+y*w, w) << std::endl;
-    }
 
     return "";
 }
