@@ -36,14 +36,12 @@ void run(const instructions_t& instructions, const std::function<void(int,int)>&
 
     for(auto& in : instructions)
     {
-        int steps = in.cmd == e_addx ? 2 : 1;
-        for(int j=0; j<steps; ++j, ++cycle)
-        {
-            func(cycle, X);
-
-            if(j==1){
-                X += in.arg;
-            }
+        if(in.cmd == e_addx){
+            func(cycle++, X);
+            func(cycle++, X);
+            X += in.arg;
+        }else{
+            func(cycle++, X);
         }
     }
 }
