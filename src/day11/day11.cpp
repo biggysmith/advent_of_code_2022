@@ -71,9 +71,10 @@ monkeys_t load_input(const std::string& file){
 
 auto process(monkeys_t monkeys, bool part1, int rounds) 
 {  
-    int mod_product = std::accumulate(monkeys.begin(), monkeys.end(), 1, [](auto& product, auto& monkey){
-        return product * monkey.test_arg;
-    });
+    int mod_product = 1;
+    for(auto& monkey : monkeys){
+        mod_product *= monkey.test_arg;
+    }
 
     for(int r=0; r<rounds; ++r)
     {
