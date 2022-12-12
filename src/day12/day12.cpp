@@ -31,23 +31,21 @@ struct grid_t {
         return heights[p.y*width+p.x];
     }
 
-    int& get(const pos_t& p){
-        return heights[p.y*width+p.x];
+    void set(const pos_t& p, int height){
+        heights[p.y*width+p.x] = height;
     }
 
     bool in_grid(const pos_t& p) const{
         return p.x >= 0 && p.x < width && p.y >= 0 && p.y < height;
     }
 
-    bool able_to_move(const pos_t& a,const pos_t& b,bool low_to_high) const{
-        if(low_to_high){
+    bool able_to_move(const pos_t& a,const pos_t& b,bool move_low_to_high) const{
+        if(move_low_to_high){
             int curr_height = get(a)=='S' ? 'a' : get(a);
             int next_height = get(b)=='E' ? 'z'+1 : get(b);
             return next_height - curr_height <= 1;
         }else{
-            int curr_height = get(a)=='E' ? 'z' : get(a);
-            int next_height = get(b)=='S' ? 'a' : get(b);
-            return curr_height - next_height <= 1;
+            return able_to_move(b, a, true);
         }
     };
 };
@@ -68,67 +66,64 @@ grid_t load_input(const std::string& file){
     return ret;
 }
 
-std::vector<pos_t> find_heights(const grid_t& grid, char h){
-    std::vector<pos_t> heights;
+pos_t find_height(const grid_t& grid, char h){
     for(int y=0; y<grid.height; ++y){
         for(int x=0; x<grid.width; ++x){
             if(grid.get({x,y}) == h){
-                heights.push_back({x,y});
+                return {x, y};
             }
         }
     }
-    return heights;
+    return {-1, -1};
 }
 
-auto dijkstra(const grid_t& grid, const pos_t& src, const pos_t& dst, bool low_to_high) 
+auto dijkstra(const grid_t& grid, const pos_t& src, char goal, bool move_low_to_high) 
 {  
     std::queue<pos_t> q;
 
     grid_t visited { std::vector<int>(grid.width*grid.height, 0), grid.width, grid.height };
-    grid_t cost { std::vector<int>(grid.width*grid.height, 0), grid.width, grid.height };
+    grid_t steps { std::vector<int>(grid.width*grid.height, 0), grid.width, grid.height };
 
-    cost.get(src) = 0;
+    steps.set(src, 0);
     q.push(src);
 
     while (!q.empty()) {
         auto curr = q.front();
         q.pop();
 
-        if(!low_to_high && grid.get(curr) == 'a'){
-            return cost.get(curr); // early out
+        if(grid.get(curr) == goal){
+            return steps.get(curr);
         }
 
         if(visited.get(curr)){
             continue;
         }
         
-        visited.get(curr) = 1;
+        visited.set(curr, 1);
 
         for(auto& d : std::vector<pos_t>{ {-1,0}, {1,0}, {0,-1}, {0,1} }){
             pos_t new_pos = curr + d;
-            if(grid.in_grid(new_pos) && grid.able_to_move(curr,new_pos,low_to_high) && !visited.get(new_pos)){
-                cost.get(new_pos) = cost.get(curr) + 1;
+            if(grid.in_grid(new_pos) && grid.able_to_move(curr,new_pos,move_low_to_high) && !visited.get(new_pos)){
+                steps.set(new_pos, steps.get(curr) + 1);
                 q.push(new_pos);
             }
         }
 
     }
 
-    return cost.get(dst);
+    return -1;
 }
 
 auto part1(const grid_t& grid) 
 {  
-    auto src = find_heights(grid, 'S');
-    auto dst = find_heights(grid, 'E');
-    return dijkstra(grid, src[0], dst[0], true);
+    auto src = find_height(grid, 'S');
+    return dijkstra(grid, src, 'E', true);
 }
 
 auto part2(const grid_t& grid) 
 {  
-    auto src = find_heights(grid, 'E');
-    auto dst = find_heights(grid, 'S');
-    return dijkstra(grid, src[0], dst[0], false);
+    auto src = find_height(grid, 'E');
+    return dijkstra(grid, src, 'a', false);
 }
 
 void main()
