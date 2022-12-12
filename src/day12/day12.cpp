@@ -87,7 +87,8 @@ auto dijkstra(const grid_t& grid, const pos_t& src, char goal, bool move_low_to_
     steps.set(src, 0);
     q.push(src);
 
-    while (!q.empty()) {
+    while (!q.empty()) 
+    {
         auto curr = q.front();
         q.pop();
 
@@ -103,12 +104,11 @@ auto dijkstra(const grid_t& grid, const pos_t& src, char goal, bool move_low_to_
 
         for(auto& d : std::vector<pos_t>{ {-1,0}, {1,0}, {0,-1}, {0,1} }){
             pos_t new_pos = curr + d;
-            if(grid.in_grid(new_pos) && grid.able_to_move(curr,new_pos,move_low_to_high) && !visited.get(new_pos)){
+            if(grid.in_grid(new_pos) && !visited.get(new_pos) && grid.able_to_move(curr,new_pos,move_low_to_high)){
                 steps.set(new_pos, steps.get(curr) + 1);
                 q.push(new_pos);
             }
         }
-
     }
 
     return -1;
