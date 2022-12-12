@@ -39,7 +39,7 @@ struct grid_t {
     bool able_to_move(const pos_t& a,const pos_t& b,bool move_low_to_high) const{
         if(move_low_to_high){
             int curr_height = get(a)=='S' ? 'a' : get(a);
-            int next_height = get(b)=='E' ? 'z'+1 : get(b);
+            int next_height = get(b)=='E' ? 'z' : get(b);
             return next_height - curr_height <= 1;
         }else{
             return able_to_move(b, a, true);
