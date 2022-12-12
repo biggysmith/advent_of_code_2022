@@ -4,11 +4,8 @@
 #include <string>
 #include <algorithm>
 #include <numeric>
-#include <string_view>
 #include <functional>
 #include <queue>
-#include <set>
-#include <map>
 
 struct pos_t{
     int x, y;
