@@ -77,7 +77,7 @@ pos_t find_height(const grid_t& grid, char h){
     return {-1, -1};
 }
 
-auto dijkstra(const grid_t& grid, const pos_t& src, char goal, bool move_low_to_high) 
+auto bfs(const grid_t& grid, const pos_t& src, char goal, bool move_low_to_high) 
 {  
     std::queue<pos_t> q;
 
@@ -117,13 +117,13 @@ auto dijkstra(const grid_t& grid, const pos_t& src, char goal, bool move_low_to_
 auto part1(const grid_t& grid) 
 {  
     auto src = find_height(grid, 'S');
-    return dijkstra(grid, src, 'E', true);
+    return bfs(grid, src, 'E', true);
 }
 
 auto part2(const grid_t& grid) 
 {  
     auto src = find_height(grid, 'E');
-    return dijkstra(grid, src, 'a', false);
+    return bfs(grid, src, 'a', false);
 }
 
 void main()
