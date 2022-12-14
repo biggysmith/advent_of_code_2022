@@ -22,8 +22,7 @@ packet_t parse_line(const std::string& line){
     for(int i = 0; i < line.size(); i++){
         const char c = line[i];
         if(c == '['){
-            ptr_stack.top()->push_back(packet_t());
-            ptr_stack.push(&std::get<packet_t>(ptr_stack.top()->back()));
+            ptr_stack.push(&std::get<packet_t>(ptr_stack.top()->emplace_back(packet_t{})));
         }else if(c == ']'){
             ptr_stack.pop();
         }else if(c == ','){
