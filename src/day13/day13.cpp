@@ -71,9 +71,9 @@ result_enum compare_packets(const packet_t& a, const packet_t& b)
         }else{
             ret = std::visit(overloaded{
                 [](const packet_t& a, const packet_t& b) { return compare_packets(a, b); },
-                [](const packet_t& a, const int& b) { return compare_packets(a, {b}); },
-                [](const int& a, const packet_t& b) { return compare_packets({a}, b); },
-                [](const int& a, const int& b) {
+                [](const packet_t& a, int b) { return compare_packets(a, {b}); },
+                [](int a, const packet_t& b) { return compare_packets({a}, b); },
+                [](int a, int b) {
                     if(a < b){
                         return e_correct_order;
                     }else if(a > b){
@@ -101,20 +101,20 @@ auto part1(const packets_t& packets)
     return sum;
 }
 
-auto part2(packets_t packet_pairs) 
+auto part2(packets_t packets) 
 {  
     packet_t two = parse_line("[[2]]");
     packet_t six = parse_line("[[6]]");
 
-    packet_pairs.push_back(two);
-    packet_pairs.push_back(six);
+    packets.push_back(two);
+    packets.push_back(six);
 
-    std::sort(packet_pairs.begin(), packet_pairs.end(), [](auto& a,auto& b){
+    std::sort(packets.begin(), packets.end(), [](auto& a,auto& b){
         return compare_packets(a,b) != e_wrong_order;
     });
 
     auto get_index = [&](const packet_t& packet){
-        return std::distance(packet_pairs.begin(), std::find(packet_pairs.begin(), packet_pairs.end(), packet)) + 1;
+        return std::distance(packets.begin(), std::find(packets.begin(), packets.end(), packet)) + 1;
     };
 
     return get_index(two) * get_index(six);
