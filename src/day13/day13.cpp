@@ -60,7 +60,7 @@ template<class... Ts> overloaded(Ts...) -> overloaded<Ts...>;
 
 enum result_enum { e_wrong_order=0, e_correct_order, e_equal_order };
 
-result_enum compare_packets(const packet_t& a,const packet_t& b)
+result_enum compare_packets(const packet_t& a, const packet_t& b)
 {
     result_enum ret = e_equal_order;
     for(int i=0; i<std::max(a.size(),b.size()) && ret==e_equal_order; ++i){
@@ -70,10 +70,10 @@ result_enum compare_packets(const packet_t& a,const packet_t& b)
             return e_wrong_order;
         }else{
             ret = std::visit(overloaded{
-                [](const packet_t& a,const packet_t& b) { return compare_packets(a, b); },
-                [](const packet_t& a,const int& b) { return compare_packets(a, {b}); },
-                [](const int& a,const packet_t& b) { return compare_packets({a}, b); },
-                [](const int& a,const int& b) {
+                [](const packet_t& a, const packet_t& b) { return compare_packets(a, b); },
+                [](const packet_t& a, const int& b) { return compare_packets(a, {b}); },
+                [](const int& a, const packet_t& b) { return compare_packets({a}, b); },
+                [](const int& a, const int& b) {
                     if(a < b){
                         return e_correct_order;
                     }else if(a > b){
