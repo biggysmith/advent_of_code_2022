@@ -52,7 +52,7 @@ paths_t load_input(const std::string& file){
     return ret;
 }
 
-struct grid_t{
+struct cave_t{
     std::unordered_map<pos_t,char,pos_hash> points;
     int max_height;
     bool has_floor;
@@ -69,37 +69,37 @@ struct grid_t{
     }
 };
 
-bool traversable(const grid_t& grid, int x, int y){
-    if(grid.has_floor && y >= grid.max_height){
+bool traversable(const cave_t& cave, int x, int y){
+    if(cave.has_floor && y >= cave.max_height){
         return false;
     }
-    return grid(x,y) != '#' && grid(x,y) != 'o';
+    return cave(x,y) != '#' && cave(x,y) != 'o';
 }
 
-bool drop_sand(grid_t& grid, int x, int y)
+bool drop_sand(cave_t& cave, int x, int y)
 {
     bool at_rest = false;
     while(!at_rest)
     {
-        if(!grid.has_floor && y+1 > grid.max_height){
+        if(!cave.has_floor && y+1 > cave.max_height){
             break; // in the void
         }
 
-        if(grid.has_floor && y+1 >= grid.max_height){
+        if(cave.has_floor && y+1 >= cave.max_height){
             at_rest = true;
             break; // hit the floor
         }
 
-        while(traversable(grid, x, y+1)){ 
+        while(traversable(cave, x, y+1)){ 
             y++; // falling
         }
 
-        if(traversable(grid, x-1, y+1)){
+        if(traversable(cave, x-1, y+1)){
             x--; y++; // move diagonal left
             continue;
         }
 
-        if(traversable(grid, x+1, y+1)){
+        if(traversable(cave, x+1, y+1)){
             x++; y++; // move diagonal right
             continue;
         }
@@ -108,49 +108,49 @@ bool drop_sand(grid_t& grid, int x, int y)
     }
 
     if(at_rest){
-        grid(x,y) = 'o';
+        cave(x,y) = 'o';
     }
 
     return at_rest;
 }
 
-grid_t setup_grid(const paths_t& paths, const pos_t& start, bool has_floor)
+cave_t setup_cave(const paths_t& paths, const pos_t& start, bool has_floor)
 {
-    grid_t grid;
-    grid.max_height = INT_MIN;
-    grid.has_floor = has_floor;
+    cave_t cave;
+    cave.max_height = INT_MIN;
+    cave.has_floor = has_floor;
 
     auto fill_line = [&](const pos_t& a, const pos_t& b){
         if(a.x == b.x){
             int ydir = a.y < b.y ? 1 : -1;
             for(int y=a.y; y!=b.y+ydir; y+=ydir){
-                grid(a.x, y) = '#';
+                cave(a.x, y) = '#';
             }
         }else if(a.y == b.y){
             int xdir = a.x < b.x ? 1 : -1;
             for(int x=a.x; x!=b.x+xdir; x+=xdir){
-                grid(x, a.y) = '#';
+                cave(x, a.y) = '#';
             }
         }
     };
 
-    grid(start.x, start.y) = '+';
+    cave(start.x, start.y) = '+';
     for(auto& path : paths){
         for(int i=0; i<path.size()-1; ++i){
             fill_line(path[i], path[i+1]);
-            grid.max_height = std::max(std::max(grid.max_height, path[i].y), path[i+1].y);
+            cave.max_height = std::max(std::max(cave.max_height, path[i].y), path[i+1].y);
         }
     }
 
     if(has_floor){
-        grid.max_height += 2;
+        cave.max_height += 2;
     }
 
-    return grid;
+    return cave;
 }
 
-auto count_sand(const grid_t& grid){
-   return std::count_if(grid.points.begin(), grid.points.end(), [](auto& pos_and_c){
+auto count_sand(const cave_t& cave){
+   return std::count_if(cave.points.begin(), cave.points.end(), [](auto& pos_and_c){
         return pos_and_c.second == 'o';  
     }); 
 }
@@ -158,24 +158,24 @@ auto count_sand(const grid_t& grid){
 auto part1(const paths_t& paths) 
 {  
     pos_t start { 500, 0 };
-    grid_t grid = setup_grid(paths, start, false);
+    cave_t cave = setup_cave(paths, start, false);
 
-    while(drop_sand(grid, start.x, start.y)){
+    while(drop_sand(cave, start.x, start.y)){
     }
 
-    return count_sand(grid);
+    return count_sand(cave);
 }
 
 auto part2(const paths_t& paths) 
 {  
     pos_t start { 500, 0 };
-    grid_t grid = setup_grid(paths, start, true);
+    cave_t cave = setup_cave(paths, start, true);
 
-    while(grid(start.x, start.y) == '+'){
-        drop_sand(grid, start.x, start.y);
+    while(cave(start.x, start.y) == '+'){
+        drop_sand(cave, start.x, start.y);
     }
 
-    return count_sand(grid);
+    return count_sand(cave);
 }
 
 void main()
