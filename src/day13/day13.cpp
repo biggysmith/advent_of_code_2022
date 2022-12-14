@@ -94,7 +94,7 @@ auto part1(const packets_t& packets)
 {  
     int sum = 0;
     for(int i=0; i<packets.size(); i+=2){
-        if(compare_packets(packets[i], packets[i+1]) != e_wrong_order){
+        if(compare_packets(packets[i], packets[i+1])){
             sum += i/2 + 1;
         }
     }
@@ -110,7 +110,7 @@ auto part2(packets_t packets)
     packets.push_back(six);
 
     std::sort(packets.begin(), packets.end(), [](auto& a,auto& b){
-        return compare_packets(a,b) != e_wrong_order;
+        return compare_packets(a,b);
     });
 
     auto get_index = [&](const packet_t& packet){
