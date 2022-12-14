@@ -138,8 +138,7 @@ grid_t setup_grid(const paths_t& paths, const pos_t& start, bool has_floor)
     for(auto& path : paths){
         for(int i=0; i<path.size()-1; ++i){
             fill_line(path[i], path[i+1]);
-            grid.max_height = std::max(grid.max_height, path[i].y);
-            grid.max_height = std::max(grid.max_height, path[i+1].y);
+            grid.max_height = std::max(std::max(grid.max_height, path[i].y), path[i+1].y);
         }
     }
 
