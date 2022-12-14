@@ -33,11 +33,10 @@ paths_t load_input(const std::string& file){
         ret.push_back(path_t());
 
         size_t pos = 0;
-        std::string token;
         std::string delimiter = " -> ";
 
         auto parse_pos = [&]{
-            token = line.substr(0, pos);
+            std::string token = line.substr(0, pos);
             auto comma = token.find(',');
             ret.back().push_back({ std::stoi(token.substr(0,comma)), std::stoi(token.substr(comma+1)) });
             line.erase(0, pos + delimiter.length());
@@ -62,10 +61,7 @@ struct cave_t{
     }
 
     char operator()(int x,int y) const{
-        if(!points.count({x,y})){
-            return '.';
-        }
-        return points.at({x,y});
+        return points.count({x,y}) ? points.at({x,y}) : '.';
     }
 };
 
