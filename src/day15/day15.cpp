@@ -48,27 +48,27 @@ struct interval_set_t
 {
     void insert(const interval_t& interval)
     {
-        auto after = ranges.upper_bound(interval.begin);
-        auto insert_range = after;
+        auto after = intervals.upper_bound(interval.begin);
+        auto insert_interval = after;
 
-        if(after == ranges.begin() || std::prev(after)->second < interval.begin) {
-            insert_range = ranges.insert(after, {interval.begin, interval.end});
+        if(after == intervals.begin() || std::prev(after)->second < interval.begin) {
+            insert_interval = intervals.insert(after, {interval.begin, interval.end});
         }else{
-            insert_range = std::prev(after);
-            if (insert_range->second >= interval.end) {
+            insert_interval = std::prev(after);
+            if (insert_interval->second >= interval.end) {
                 return;
             }else{
-                insert_range->second = interval.end;
+                insert_interval->second = interval.end;
             }   
         }   
 
-        while(after != ranges.end() && interval.end >= after->first) {
-            insert_range->second = std::max(after->second, insert_range->second);
-            after = ranges.erase(after);
+        while(after != intervals.end() && interval.end >= after->first) {
+            insert_interval->second = std::max(after->second, insert_interval->second);
+            after = intervals.erase(after);
         }   
     }
 
-    std::map<int,int> ranges; // stupid std::set iterators are not mutable, so lets abuse map
+    std::map<int,int> intervals; // stupid std::set iterators are not mutable, so lets abuse map
 };
 
 
@@ -92,7 +92,7 @@ auto part1(const sensors_t& sensor_list, int row)
     }
 
     int empty = 0;
-    for(auto& [xlow,xhigh] : intervals.ranges){
+    for(auto& [xlow,xhigh] : intervals.intervals){
         empty += xhigh - xlow + 1;
     }
 
@@ -122,8 +122,8 @@ auto part2(const sensors_t& sensor_list)
             }
         }
 
-        if(intervals.ranges.size() > 1){
-            for(auto& [xlow,xhigh] : intervals.ranges){
+        if(intervals.intervals.size() > 1){
+            for(auto& [xlow,xhigh] : intervals.intervals){
                 return (xhigh+1) * 4'000'000ULL + y;
             }
         }
