@@ -108,12 +108,7 @@ auto part1(const sensors_t& sensor_list, int row)
 
 auto part2(const sensors_t& sensor_list) 
 {  
-    int max_y = INT_MIN;
-    for(auto& sen : sensor_list){
-        max_y = std::max(sen.sensor.y, max_y);
-    }
-
-    for(int y=0; y<=max_y; ++y){
+    for(int y=0; y<=4'000'000ULL; ++y){
         interval_set_t intervals;
 
         for(auto& sen : sensor_list){
