@@ -52,17 +52,17 @@ struct interval_set_t
         auto insert_range = after;
 
         if(after == ranges.begin() || std::prev(after)->second < interval.begin) {
-            insert_range = ranges.insert(after, {interval.begin, interval.end+1}); // +1 since inclusive
+            insert_range = ranges.insert(after, {interval.begin, interval.end});
         }else{
             insert_range = std::prev(after);
-            if (insert_range->second >= interval.end+1) {
+            if (insert_range->second >= interval.end) {
                 return;
             }else{
-                insert_range->second = interval.end+1;
+                insert_range->second = interval.end;
             }   
         }   
 
-        while(after != ranges.end() && interval.end+1 >= after->first) {
+        while(after != ranges.end() && interval.end >= after->first) {
             insert_range->second = std::max(after->second, insert_range->second);
             after = ranges.erase(after);
         }   
@@ -93,7 +93,7 @@ auto part1(const sensors_t& sensor_list, int row)
 
     int empty = 0;
     for(auto& [xlow,xhigh] : intervals.ranges){
-        empty += xhigh - xlow;
+        empty += xhigh - xlow + 1;
     }
 
     std::set<int> beacons;
@@ -124,7 +124,7 @@ auto part2(const sensors_t& sensor_list)
 
         if(intervals.ranges.size() > 1){
             for(auto& [xlow,xhigh] : intervals.ranges){
-                return xhigh * 4'000'000ULL + y;
+                return (xhigh+1) * 4'000'000ULL + y;
             }
         }
     }
