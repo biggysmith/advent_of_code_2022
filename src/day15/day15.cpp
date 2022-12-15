@@ -83,16 +83,16 @@ std::optional<interval_t> row_sensor_intersection(const sensor_t& s, int row){
 
 auto part1(const sensors_t& sensor_list, int row) 
 {  
-    interval_set_t intervals;
+    interval_set_t interval_set;
 
     for(auto& sen : sensor_list){
         if(auto in = row_sensor_intersection(sen, row)){
-            intervals.insert(*in);
+            interval_set.insert(*in);
         }
     }
 
     int empty = 0;
-    for(auto& [xlow,xhigh] : intervals.intervals){
+    for(auto& [xlow,xhigh] : interval_set.intervals){
         empty += xhigh - xlow + 1;
     }
 
@@ -109,16 +109,16 @@ auto part1(const sensors_t& sensor_list, int row)
 auto part2(const sensors_t& sensor_list) 
 {  
     for(int y=0; y<=4'000'000ULL; ++y){
-        interval_set_t intervals;
+        interval_set_t interval_set;
 
         for(auto& sen : sensor_list){
             if(auto in = row_sensor_intersection(sen, y)){
-                intervals.insert(*in);
+                interval_set.insert(*in);
             }
         }
 
-        if(intervals.intervals.size() > 1){
-            for(auto& [xlow,xhigh] : intervals.intervals){
+        if(interval_set.intervals.size() > 1){
+            for(auto& [xlow,xhigh] : interval_set.intervals){
                 return (xhigh+1) * 4'000'000ULL + y;
             }
         }
