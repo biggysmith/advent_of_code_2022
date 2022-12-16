@@ -9,6 +9,7 @@
 #include <set>
 #include <map>
 #include <assert.h>
+#include "timer.hpp"
 
 struct pos_t{
     int x, y;
@@ -108,7 +109,15 @@ auto part1(const sensors_t& sensor_list, int row)
 
 auto part2(const sensors_t& sensor_list) 
 {  
-    for(int y=0; y<=4'000'000ULL; ++y){
+    uint64_t result;
+    volatile bool flag = false;
+
+    #pragma omp parallel for
+    for(int y=0; y<=4'000'000; ++y){
+        if(flag){
+            continue;
+        }
+
         interval_set_t interval_set;
 
         for(auto& sen : sensor_list){
@@ -119,12 +128,15 @@ auto part2(const sensors_t& sensor_list)
 
         if(interval_set.intervals.size() > 1){
             for(auto& [xlow,xhigh] : interval_set.intervals){
-                return (xhigh+1) * 4'000'000ULL + y;
+                flag = true;
+                result = (xhigh+1) * 4'000'000ULL + y; 
+                break;
             }
         }
     }
 
-    return 0ULL;
+
+    return result;
 }
 
 void main()
