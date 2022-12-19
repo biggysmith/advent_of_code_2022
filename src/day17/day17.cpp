@@ -62,17 +62,11 @@ struct chamber_t{
     std::vector<unsigned char> levels;
 
     bool get(int x,int y) const{
-        //int py = levels.size()-y-1;
         return (levels[y] & (1 << x)) != 0;
     }
 
     void set(int x,int y,bool b){
-        //int py = levels.size()-y-1;
-        if(b){
-            levels[y] |= (1 << x);
-        }else{
-            levels[y] &= ~(1 << x); 
-        }
+        b ? levels[y] |= (1 << x) : levels[y] &= ~(1 << x);
     }
 
     void print() const{
@@ -101,12 +95,9 @@ struct chamber_t{
 
     bool can_move_rock_left(int x, int y, const rock_t& rock){
         for(auto& pos : rock.shape){
-            int new_x = pos.x + x - 1;
-            int new_y = pos.y + y;
-            if(new_x < 0){
+            if(pos.x + x - 1 < 0){
                 return false;
-            }
-            if(!rock.shape.count({pos.x-1,pos.y}) && get(new_x, new_y)){
+            }else if(!rock.shape.count({pos.x-1,pos.y}) && get(pos.x + x - 1, pos.y + y)){
                 return false;
             }
         }
@@ -115,12 +106,9 @@ struct chamber_t{
 
     bool can_move_rock_right(int x, int y, const rock_t& rock){
         for(auto& pos : rock.shape){
-            int new_x = pos.x + x + 1;
-            int new_y = pos.y + y;
-            if(new_x > 6){
+            if(pos.x + x + 1 > 6){
                 return false;
-            }
-            if(!rock.shape.count({pos.x+1,pos.y}) && get(new_x, new_y)){
+            }else if(!rock.shape.count({pos.x+1,pos.y}) && get(pos.x + x + 1, pos.y + y)){
                 return false;
             }
         }
@@ -129,12 +117,9 @@ struct chamber_t{
 
     bool can_move_rock_down(int x, int y, const rock_t& rock){
         for(auto& pos : rock.shape){
-            int new_x = pos.x + x;
-            int new_y = pos.y + y - 1;
-            if(new_y == -1){
+            if(pos.y + y - 1 == -1){
                 return false;
-            }
-            if(!rock.shape.count({pos.x,pos.y-1}) && get(new_x, new_y)){
+            }else if(!rock.shape.count({pos.x,pos.y-1}) && get(pos.x + x, pos.y + y - 1)){
                 return false;
             }
         }
@@ -159,16 +144,16 @@ struct chamber_t{
 
 auto part1(const jets_t& jets) 
 {
-    auto rocks = get_rocks();
-
     chamber_t chamber;
+    auto rocks = get_rocks();
 
     int j = 0;
     int x = 0;
     int y = 0;
     int max_y = -1;
 
-    for(int i=0; i<2022; ++i){
+    for(int i=0; i<2022; ++i)
+    {
         auto& rock = rocks[i % rocks.size()];
 
         x = 2;
@@ -181,32 +166,27 @@ auto part1(const jets_t& jets)
         chamber.place_rock(x, y, rock);
 
         bool falling = true;
-        while(falling){
+        while(falling)
+        {
             char jet = jets[j++ % jets.size()];
             if(jet == '<'){
                 if(chamber.can_move_rock_left(x, y, rock)){
-                    chamber.move_rock_left(x, y, rock);
-                    x--;
+                    chamber.move_rock_left(x--, y, rock);
                 }
             }else if(jet == '>'){
                 if(chamber.can_move_rock_right(x, y, rock)){
-                    chamber.move_rock_right(x, y, rock);
-                    x++;
+                    chamber.move_rock_right(x++, y, rock);
                 }
             }
 
             if(chamber.can_move_rock_down(x, y, rock)){
-                chamber.move_rock_down(x, y, rock);
-                y--;
+                chamber.move_rock_down(x, y--, rock);
             }else{
                 max_y = std::max(max_y, y);
                 falling = false;
             }
         }
-
-        int c = 0;
     }
-
 
     return max_y + 1;
 }
