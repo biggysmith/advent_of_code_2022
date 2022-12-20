@@ -5,22 +5,17 @@
 #include <algorithm>
 #include <numeric>
 #include <functional>
-#include <sstream>
-#include <map>
 #include <set>
 
-using jets_t = std::vector<char>;
+using jets_t = std::string;
 
 jets_t load_input(const std::string& file){
     jets_t ret;
     std::ifstream fs(file);
 
     std::string line; 
-    while (std::getline(fs, line)) {
-        std::copy(line.begin(), line.end(), std::back_inserter(ret));
-    }
-
-    return ret;
+    std::getline(fs, line);
+    return line;
 }
 
 struct pos_t{
@@ -48,18 +43,8 @@ rocks_t get_rocks(){
     return { a, b, c, d, e };
 }
 
-void print(const rock_t& rock){
-    std::cout << std::endl;
-    for(int y=0; y<rock.height; ++y){
-        for(int x=0; x<rock.width; ++x){
-            std::cout << (rock.shape.count({x,y}) ? '#' : '.');
-        }
-        std::cout << std::endl;
-    }
-}
-
 struct chamber_t{
-    std::vector<unsigned char> levels;
+    std::vector<char> levels;
 
     bool get(int x,int y) const{
         return (levels[y] & (1 << x)) != 0;
@@ -67,18 +52,6 @@ struct chamber_t{
 
     void set(int x,int y,bool b){
         b ? levels[y] |= (1 << x) : levels[y] &= ~(1 << x);
-    }
-
-    void print() const{
-        std::cout << std::endl;
-        for(int y=(int)levels.size()-1; y>=0; --y){
-            std::cout << "|";
-            for(int x=0; x<7; ++x){
-                std::cout << (get(x,y) ? '#' : '.');
-            }  
-            std::cout << "|" << std::endl;
-        }
-        std::cout << "+-------+" << std::endl;
     }
 
     void remove_rock(int x, int y, const rock_t& rock){
@@ -142,22 +115,26 @@ struct chamber_t{
     }
 };
 
-auto part1(const jets_t& jets) 
+template <typename T>
+void hash_combine(std::size_t& seed, const T& v){
+    seed ^= std::hash<T>()(v) + 0x9e3779b9 + (seed<<6) + (seed>>2);
+}
+
+auto process(const jets_t& jets, bool part2) 
 {
     chamber_t chamber;
     auto rocks = get_rocks();
 
-    int j = 0;
-    int x = 0;
-    int y = 0;
     int max_y = -1;
+    std::vector<size_t> hashes;
+    std::vector<int> max_heights;
 
-    for(int i=0; i<2022; ++i)
+    for(int i=0, j=0; i<2022; ++i)
     {
         auto& rock = rocks[i % rocks.size()];
 
-        x = 2;
-        y = max_y + rock.height + 3;
+        int x = 2;
+        int y = max_y + rock.height + 3;
 
         if(chamber.levels.size() < y+1){
             chamber.levels.resize(y+1);
@@ -165,15 +142,13 @@ auto part1(const jets_t& jets)
 
         chamber.place_rock(x, y, rock);
 
-        bool falling = true;
-        while(falling)
+        for(bool falling=true; falling; ++j)
         {
-            char jet = jets[j++ % jets.size()];
-            if(jet == '<'){
+            if(jets[j % jets.size()] == '<'){
                 if(chamber.can_move_rock_left(x, y, rock)){
                     chamber.move_rock_left(x--, y, rock);
                 }
-            }else if(jet == '>'){
+            }else{
                 if(chamber.can_move_rock_right(x, y, rock)){
                     chamber.move_rock_right(x++, y, rock);
                 }
@@ -182,29 +157,55 @@ auto part1(const jets_t& jets)
             if(chamber.can_move_rock_down(x, y, rock)){
                 chamber.move_rock_down(x, y--, rock);
             }else{
-                max_y = std::max(max_y, y);
                 falling = false;
+
+                max_y = std::max(max_y, y);
+                max_heights.push_back(max_y);
+
+                if(part2)
+                {
+                    size_t hash = 0;
+                    hash_combine(hash, j % jets.size());
+                    hash_combine(hash, i % rocks.size());
+                    for(int h=max_y-4; h!=max_y; h++){ // hash surface
+                        hash_combine(hash, chamber.levels[std::max(0,h)]);
+                    }
+
+                    auto it = std::find(hashes.begin(), hashes.end(), hash);
+                    if(it != hashes.end()){      
+                        int start = (int)std::distance(hashes.begin(), it);
+                        int end = i;
+                        int cycle_width = end - start;
+
+                        size_t pre_cycle_height = max_heights[start];
+
+                        size_t repeats = (1'000'000'000'000 - start) / cycle_width;
+                        size_t repeated_cycles_height = repeats * (max_heights[end] - max_heights[start]);
+
+                        size_t remaining_cycles = (1'000'000'000'000 - start) % cycle_width;
+                        size_t post_cycle_height = max_heights[start + remaining_cycles] - max_heights[start];
+
+                        return pre_cycle_height + repeated_cycles_height + post_cycle_height; 
+                    }else{
+                        hashes.push_back(hash);
+                    }
+                }
             }
         }
+
     }
 
-    return max_y + 1;
+    return max_y + 1ull;
 }
-
-auto part2(const jets_t& valves) 
-{
-    return 0;
-}
-
 
 void main()
 {
     auto test_values = load_input("../src/day17/test_input.txt");
     auto actual_values = load_input("../src/day17/input.txt");
 
-    std::cout << "part1: " << part1(test_values) << std::endl;
-    std::cout << "part1: " << part1(actual_values) << std::endl;
+    std::cout << "part1: " << process(test_values, false) << std::endl;
+    std::cout << "part1: " << process(actual_values, false) << std::endl;
 
-    //std::cout << "part2: " << part2(test_values) << std::endl;
-    //std::cout << "part2: " << part2(actual_values) << std::endl;
+    std::cout << "part2: " << process(test_values, true) << std::endl;
+    std::cout << "part2: " << process(actual_values, true) << std::endl;
 }
