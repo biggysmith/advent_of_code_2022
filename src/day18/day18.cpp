@@ -106,14 +106,11 @@ auto part2(const droplet_t& lava)
 
     std::set<pos_t> water = flood_fill(lava, min_pos, min_pos, max_pos);
 
-    auto add_side = [&](const pos_t& pos){
-        return !lava.count({pos.x, pos.y, pos.z}) && water.count({pos.x, pos.y, pos.z});
-    };
-
     int area = 0;
     for(auto& pos : lava){
         for(auto& d : std::vector<pos_t>{ {-1,0,0}, {1,0,0}, {0,-1,0}, {0,1,0}, {0,0,-1}, {0,0,1} }){
-            area += add_side(pos + d);
+            auto new_pos = pos + d;
+            area += !lava.count(new_pos) && water.count(new_pos);
         }
     }
 
