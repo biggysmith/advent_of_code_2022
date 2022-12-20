@@ -6,9 +6,7 @@
 #include <numeric>
 #include <functional>
 #include <set>
-#include <unordered_set>
 #include <queue>
-#include "timer.hpp"
 
 struct pos_t{
     int x, y, z;
@@ -45,6 +43,43 @@ droplet_t load_input(const std::string& file){
     return ret;
 }
 
+bool inside_box(const pos_t& pos, const pos_t& min_pos, const pos_t& max_pos){
+    return pos.x >= min_pos.x && pos.x < max_pos.x && pos.y >= min_pos.y && pos.y < max_pos.y && pos.z >= min_pos.z && pos.z < max_pos.z;
+}
+
+std::set<pos_t> flood_fill(const std::set<pos_t>& lava, const pos_t& pos, const pos_t& min_pos, const pos_t& max_pos) 
+{ 
+    std::set<pos_t> water;
+
+    std::queue<pos_t> q;
+    q.push(pos);
+
+    pos_t outside_min_pos = min_pos + pos_t{ -1, -1, -1 };
+    pos_t outside_max_pos = max_pos + pos_t{ 1, 1, 1 };
+
+    while (!q.empty()) 
+    {
+        auto curr = q.front();
+        q.pop();
+
+        if(water.count(curr)){
+            continue;
+        }
+        
+        water.insert(curr);
+
+        for(auto& d : std::vector<pos_t>{ {-1,0,0}, {1,0,0}, {0,-1,0}, {0,1,0}, {0,0,-1}, {0,0,1} }){
+            pos_t new_pos = curr + d;
+            if(!lava.count(new_pos) && !water.count(new_pos) && inside_box(new_pos, outside_min_pos, outside_max_pos)){
+                q.push(new_pos);
+            }
+        }
+    }
+
+    return water;
+} 
+
+
 auto part1(const droplet_t& droplet)
 {
     int area = 0;
@@ -56,58 +91,12 @@ auto part1(const droplet_t& droplet)
     return area;
 }
 
-bool inside_box(const pos_t& pos, const pos_t& min_pos, const pos_t& max_pos){
-    return pos.x >= min_pos.x && pos.x < max_pos.x && pos.y >= min_pos.y && pos.y < max_pos.y && pos.z >= min_pos.z && pos.z < max_pos.z;
-}
-
-auto trapped_air(const droplet_t& droplet, const pos_t& src, const pos_t& min_pos, const pos_t& max_pos) 
-{  
-    if(droplet.count(src)){
-        return false;
-    }
-
-    std::queue<pos_t> q;
-
-    std::set<pos_t> visited;
-    q.push(src);
-
-    pos_t ouside_min_pos = min_pos + pos_t{ -1, -1, -1 };
-    pos_t ouside_max_pos = max_pos + pos_t{ 1, 1, 1 };
-
-    while (!q.empty()) 
-    {
-        auto curr = q.front();
-        q.pop();
-
-        if(!inside_box(curr, min_pos, max_pos)){
-            return false;
-        }
-
-        if(visited.count(curr)){
-            continue;
-        }
-        
-        visited.insert(curr);
-
-        for(auto& d : std::vector<pos_t>{ {-1,0,0}, {1,0,0}, {0,-1,0}, {0,1,0}, {0,0,-1}, {0,0,1} }){
-            pos_t new_pos = curr + d;
-            if(!droplet.count(new_pos) && !visited.count(new_pos) && inside_box(new_pos, ouside_min_pos, ouside_max_pos)){
-                q.push(new_pos);
-            }
-        }
-    }
-
-    return true;
-}
-
-auto part2(const droplet_t& droplet)
+auto part2(const droplet_t& lava)
 {
-    scoped_timer timer;
-
     pos_t min_pos = { INT_MAX, INT_MAX, INT_MAX };
     pos_t max_pos = { INT_MIN, INT_MIN, INT_MIN };
 
-    for(auto& pos : droplet){
+    for(auto& pos : lava){
         min_pos = minimum(min_pos, pos);
         max_pos = maximum(max_pos, pos);
     }
@@ -115,27 +104,14 @@ auto part2(const droplet_t& droplet)
     min_pos = min_pos + pos_t{ -1, -1, -1 };
     max_pos = max_pos + pos_t{ 1, 1, 1 };
 
-    std::set<pos_t> air;
-
-    for(int z=min_pos.z; z<max_pos.z; ++z){
-        for(int y=min_pos.y; y<max_pos.y; ++y){
-            for(int x=min_pos.x; x<max_pos.x; ++x){
-    
-                pos_t pos { x, y, z };
-                if(trapped_air(droplet, pos, min_pos, max_pos)){
-                    air.insert(pos);
-                }
-
-            }
-        }
-    }
+    std::set<pos_t> water = flood_fill(lava, min_pos, min_pos, max_pos);
 
     auto add_side = [&](const pos_t& pos){
-        return !droplet.count({pos.x, pos.y, pos.z}) && !air.count({pos.x, pos.y, pos.z});
+        return !lava.count({pos.x, pos.y, pos.z}) && water.count({pos.x, pos.y, pos.z});
     };
 
     int area = 0;
-    for(auto& pos : droplet){
+    for(auto& pos : lava){
         for(auto& d : std::vector<pos_t>{ {-1,0,0}, {1,0,0}, {0,-1,0}, {0,1,0}, {0,0,-1}, {0,0,1} }){
             area += add_side(pos + d);
         }
