@@ -80,12 +80,12 @@ std::set<pos_t> flood_fill(const std::set<pos_t>& lava, const pos_t& pos, const 
 } 
 
 
-auto part1(const droplet_t& droplet)
+auto part1(const droplet_t& lava)
 {
     int area = 0;
-    for(auto& pos : droplet){
+    for(auto& pos : lava){
         for(auto& d : std::vector<pos_t>{ {-1,0,0}, {1,0,0}, {0,-1,0}, {0,1,0}, {0,0,-1}, {0,0,1} }){
-            area += !droplet.count(pos + d);
+            area += !lava.count(pos + d);
         }
     }
     return area;
