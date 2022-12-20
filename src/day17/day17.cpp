@@ -172,7 +172,7 @@ auto process(const jets_t& jets, bool part2)
                     }
 
                     auto it = std::find(hashes.begin(), hashes.end(), hash);
-                    if(it != hashes.end()){      
+                    if(it != hashes.end()){ // oh we have already seen this, we have a repeat!
                         int start = (int)std::distance(hashes.begin(), it);
                         int end = i;
                         int cycle_width = end - start;
