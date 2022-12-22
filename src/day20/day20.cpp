@@ -14,7 +14,7 @@ struct number_t{
 };
 
 bool operator==(const number_t& a,const number_t& b){
-    return std::tuple(a.val,a.index) == std::tuple(b.val,b.index);
+    return std::tuple(a.index,a.val) == std::tuple(b.index,b.val);
 }
 
 using numbers_t = std::vector<number_t>;
@@ -65,7 +65,6 @@ numbers_t mix(const numbers_t& coded, const numbers_t& orig) {
 
 auto part1(const numbers_t& coded) 
 {
-    auto decoded = mix(coded, coded);
     return coordinate_sum(mix(coded, coded));
 }
 
