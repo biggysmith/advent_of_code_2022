@@ -53,8 +53,9 @@ auto coordinate_sum(const numbers_t& numbers) {
     return coordinate(numbers, zero_pos, 1000) + coordinate(numbers, zero_pos, 2000) + coordinate(numbers, zero_pos, 3000);
 }
 
-numbers_t mix(const numbers_t& coded, const numbers_t& orig) {
-    numbers_t decoded(coded.begin(), coded.end());
+numbers_t mix(const numbers_t& coded, const numbers_t& orig) 
+{
+    numbers_t decoded = coded;
 
     for(int i=0; i<coded.size(); ++i){
         move(decoded, orig[i]);
@@ -70,7 +71,7 @@ auto part1(const numbers_t& coded)
 
 auto part2(const numbers_t& coded)
 {
-    numbers_t key_coded(coded.begin(), coded.end());
+    numbers_t key_coded = coded;
 
     for(auto& num : key_coded){
         num.val *= 811589153;
