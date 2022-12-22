@@ -9,18 +9,18 @@
 #include "timer.hpp"
 
 struct number_t{
-    int index;
-    int val;
+    int64_t index;
+    int64_t val;
 };
 
 bool operator==(const number_t& a,const number_t& b){
     return std::tuple(a.val,a.index) == std::tuple(b.val,b.index);
 }
 
-using encrypted_data_t = std::vector<number_t>;
+using numbers_t = std::vector<number_t>;
 
-encrypted_data_t load_input(const std::string& file){
-    encrypted_data_t ret;
+numbers_t load_input(const std::string& file){
+    numbers_t ret;
     std::ifstream fs(file);
 
     int c = 0;
@@ -33,48 +33,56 @@ encrypted_data_t load_input(const std::string& file){
 
 int64_t mod(int64_t a, int64_t b) { return (a % b + b) % b; }
 
-std::ostream& operator<<(std::ostream& os, const std::vector<int>& q){
-    for(auto i : q){
-        os << i << ", ";
-    }
-    return os;
-}
-
-template<typename T>
-void move(T& vec, const number_t& num) 
-{
+void move(numbers_t& vec, const number_t& num) {
     auto it = std::find(vec.begin(), vec.end(), num);
-    auto pos = mod(std::distance(vec.begin(),it) + num.val, vec.size()-1ull);
+    auto pos = mod(std::distance(vec.begin(),it) + num.val, vec.size()-1ULL);
 
     vec.erase(it);
     vec.insert(vec.begin() + pos, num);
 }
 
-auto part1(const encrypted_data_t& coded)
-{
-    //scoped_timer timer;
+auto coordinate(const numbers_t& numbers,int64_t zero_pos,int64_t v){
+    return numbers[(v+zero_pos) % numbers.size()].val;
+};
 
-    std::vector<number_t> decoded(coded.begin(), coded.end());
-
-    for(auto& num : coded){
-        move(decoded, num);
-    }
-
-    auto zero_pos = std::distance(decoded.begin(), std::find_if(decoded.begin(), decoded.end(), [](auto& num){
+auto coordinate_sum(const numbers_t& numbers) {
+    auto zero_pos = std::distance(numbers.begin(), std::find_if(numbers.begin(), numbers.end(), [](auto& num){
         return num.val == 0;
     }));
 
-    auto get = [&](int v){
-        return decoded[(v+zero_pos) % decoded.size()].val;
-    };
-
-    return get(1000) + get(2000) + get(3000);
+    return coordinate(numbers, zero_pos, 1000) + coordinate(numbers, zero_pos, 2000) + coordinate(numbers, zero_pos, 3000);
 }
 
-auto part2( encrypted_data_t data)
-{
+numbers_t mix(const numbers_t& coded, const numbers_t& orig) {
+    numbers_t decoded(coded.begin(), coded.end());
 
-    return 0;
+    for(int i=0; i<coded.size(); ++i){
+        move(decoded, orig[i]);
+    }
+
+    return decoded;
+}
+
+auto part1(const numbers_t& coded) 
+{
+    auto decoded = mix(coded, coded);
+    return coordinate_sum(mix(coded, coded));
+}
+
+auto part2(const numbers_t& coded)
+{
+    numbers_t key_coded(coded.begin(), coded.end());
+
+    for(auto& num : key_coded){
+        num.val *= 811589153;
+    }
+
+    numbers_t decoded = key_coded;
+    for(int i=0; i<10; ++i){
+        decoded = mix(decoded, key_coded);
+    }
+
+    return coordinate_sum(decoded);
 }
 
 void main()
@@ -85,6 +93,6 @@ void main()
     std::cout << "part1: " << part1(test_values) << std::endl;
     std::cout << "part1: " << part1(actual_values) << std::endl;
 
-    //std::cout << "part2: " << part2(test_values) << std::endl;
-    //std::cout << "part2: " << part2(actual_values) << std::endl;
+    std::cout << "part2: " << part2(test_values) << std::endl;
+    std::cout << "part2: " << part2(actual_values) << std::endl;
 }
