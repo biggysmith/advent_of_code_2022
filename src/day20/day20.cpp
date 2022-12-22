@@ -57,8 +57,8 @@ numbers_t mix(const numbers_t& coded, const numbers_t& orig)
 {
     numbers_t decoded = coded;
 
-    for(int i=0; i<coded.size(); ++i){
-        move(decoded, orig[i]);
+    for(auto& num : orig){
+        move(decoded, num);
     }
 
     return decoded;
