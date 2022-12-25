@@ -69,10 +69,10 @@ void construct(tree_t& tree, const std::string& monkey_name, const monkeys_t& mo
 
 int64_t monkey_op(int64_t left, char op, int64_t right){
     switch(op){
-        case '+':   return left + right;;
-        case '-':   return left - right;;
-        case '*':   return left * right;;
-        case '/':   return left / right;;
+        case '+':   return left + right;
+        case '-':   return left - right;
+        case '*':   return left * right;
+        case '/':   return left / right;
         default:    return op;
     };
 }
