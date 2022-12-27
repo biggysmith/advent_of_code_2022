@@ -91,7 +91,6 @@ note_t load_input(const std::string& file, int dims)
     return ret;
 }
 
-
 int mod(int a, int b) { return (a % b + b) % b; }
 
 std::vector<pos_t> dirs {
@@ -207,19 +206,28 @@ int process(note_t note, const face_info_map_t& face_info_map)
                 edge_t to_edge;
                 int edge_idx = 0;
 
-                if(new_pos.x >= current_face->xend()){
+                if(new_pos.x >= current_face->xend())
+                {
                     to_edge = current_face->edges[e_right];
                     edge_idx = pos.y % note.dims;
-                }else if(new_pos.x <  current_face->xstart()){
+                }
+                else if(new_pos.x <  current_face->xstart())
+                {
                     to_edge = current_face->edges[e_left];
                     edge_idx = pos.y % note.dims;
-                }else if(new_pos.y >= current_face->yend()){
+                }
+                else if(new_pos.y >= current_face->yend())
+                {
                     to_edge = current_face->edges[e_down];
                     edge_idx = pos.x % note.dims;
-                }else if(new_pos.y < current_face->ystart()){
+                }
+                else if(new_pos.y < current_face->ystart())
+                {
                     to_edge = current_face->edges[e_up];
                     edge_idx = pos.x % note.dims;
-                }else{
+                }
+                else
+                {
                     transitioning = false;
                 }
 
@@ -274,31 +282,12 @@ auto part2(const note_t& note)
     int xgrid = note.map.width / note.dims;
     int ygrid = note.map.height / note.dims;
 
-    grid_t<int> face_presence(xgrid, ygrid, false);
+    grid_t<face_info_t*> face_info(xgrid, ygrid, nullptr);
 
     for(int gy=0; gy<ygrid; ++gy){
         for(int gx=0; gx<xgrid; ++gx){
-            int sx = gx * note.dims;
-            int sy = gy * note.dims;
-            if(note.map(sx,sy) != ' '){
-                face_presence(gx,gy) = true;
-            }
-        }
-    }
-
-    int cx = 0;
-    int cy = 0;
-    for(; cx<xgrid; ++cx){
-        if(face_presence(cx,0)){
-            break;
-        }
-    }
-
-    grid_t<face_info_t*> face_info(face_presence.width, face_presence.height, nullptr);
-    for(int y=0; y<face_presence.height; ++y){
-        for(int x=0; x<face_presence.width; ++x){
-            if(face_presence(x,y)){
-                face_info(x,y) = new face_info_t(x*note.dims, y*note.dims, note.dims);
+            if(note.map(gx*note.dims, gy*note.dims) != ' '){
+                face_info(gx,gy) = new face_info_t(gx*note.dims, gy*note.dims, note.dims);
             }
         }
     }
