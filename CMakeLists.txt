@@ -28,7 +28,7 @@ add_executable(day21 src/day21/day21.cpp)
 add_executable(day22 src/day22/day22.cpp) 
 add_executable(day23 src/day23/day23.cpp) 
 add_executable(day24 src/day24/day24.cpp) 
-#add_executable(day25 src/day25/day25.cpp) 
+add_executable(day25 src/day25/day25.cpp) 
 
 include_directories(src/util)
 
