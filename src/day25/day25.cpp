@@ -40,7 +40,7 @@ std::map<int64_t,char> decimal_to_snafu_map = {
 
 int64_t snafu_to_decimal(const std::string& s){
     int64_t ret = 0;
-    for(int64_t i=(int)s.size()-1,f=1; i>=0; i--,f*=5){
+    for(int64_t i=s.size()-1,f=1; i>=0; i--,f*=5){
         ret += snafu_to_decimal_map[s[i]] * f;
     }
     return ret;
@@ -49,16 +49,17 @@ int64_t snafu_to_decimal(const std::string& s){
 std::string decimal_to_snufu(int64_t d){
     std::string ret;
 
+    int64_t f=1;
     int64_t i=0;
     double fd = (double)d; 
-    for(int64_t f=1; fd>0; i++,f*=5){
+    for(; fd>0; i++,f*=5){
         fd = round(fd/5);
     }
 
-    for(int64_t j=i-1; j>=0; --j){
-        int64_t k = (int64_t)pow(5,j);
-        int64_t n = (int64_t)round(d/(double)k);  
-        d -= (n*k);
+    f/=5;
+    for(int64_t j=0; j<i; j++, f/=5){
+        int64_t n = (int64_t)round(d/(double)f);  
+        d -= (n*f);
         ret += decimal_to_snafu_map[n];
     }
 
