@@ -13,7 +13,7 @@ struct pos_t{
 };
 
 bool operator<(const pos_t& a,const pos_t& b){
-    return std::tuple(a.x,a.y,a.z) > std::tuple(b.x,b.y,b.z);
+    return std::tuple(a.x,a.y,a.z) < std::tuple(b.x,b.y,b.z);
 }
 
 pos_t operator+(const pos_t& a,const pos_t& b){
@@ -26,7 +26,7 @@ struct blizzard_t{
 };
 
 bool operator<(const blizzard_t& a,const blizzard_t& b){
-    return std::tuple(a.x,a.y) > std::tuple(b.x,b.y);
+    return std::tuple(a.x,a.y) < std::tuple(b.x,b.y);
 }
 
 struct valley_t{
