@@ -136,25 +136,17 @@ auto bfs(std::vector<valley_t>& valleys, const pos_t& src, const pos_t& dst)
 
 auto part1(const valley_t& valley) 
 {
-    std::vector<valley_t> valleys;
-    valleys.push_back(valley);
-    valleys.push_back(update(valley));
-
+    std::vector<valley_t> valleys { valley };
     return bfs(valleys, valley.src(), valley.dst());
 }
 
 auto part2(const valley_t& valley) 
 {
-    std::vector<valley_t> valleys;
-    valleys.push_back(valley);
-    valleys.push_back(update(valley));
+    std::vector<valley_t> valleys { valley };
 
-    pos_t src = valley.src();
-    pos_t dst = valley.dst();
-
-    auto first = bfs(valleys, src, dst);
-    auto second = bfs(valleys, {dst.x,dst.y,first}, src);
-    auto third = bfs(valleys, {src.x,src.y,second}, dst);
+    auto first  = bfs(valleys, valley.src(), valley.dst());
+    auto second = bfs(valleys, { valley.dst().x, valley.dst().y, first },  valley.src());
+    auto third  = bfs(valleys, { valley.src().x, valley.src().y, second }, valley.dst());
 
     return third;
 }
