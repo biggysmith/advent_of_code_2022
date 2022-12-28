@@ -35,7 +35,7 @@ struct valley_t{
     int height = 0;
 
     bool in_bounds(const pos_t& pos){
-        if((pos.x==1 && pos.y==0) || (pos.x==width-2 && pos.y==height-1)){
+        if((pos.x==src().x && pos.y==src().y) || (pos.x==dst().x && pos.y==dst().y)){
             return true;
         }
         return pos.x>0 && pos.x<width-1 && pos.y>0 && pos.y<height-1;
