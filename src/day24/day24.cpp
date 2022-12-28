@@ -88,15 +88,12 @@ valley_t update(const valley_t& valley)
     ret.width = valley.width;
     ret.height = valley.height;
     for(auto& blizzard : valley.blizzards){
-        if(blizzard.dir == '<'){
-            ret.blizzards.insert({'<', next(blizzard.x-1, ret.width), blizzard.y});
-        }else if(blizzard.dir == '>'){
-            ret.blizzards.insert({'>', next(blizzard.x+1, ret.width), blizzard.y});
-        }else if(blizzard.dir == '^'){
-            ret.blizzards.insert({'^', blizzard.x, next(blizzard.y-1, ret.height)});
-        }else if(blizzard.dir == 'v'){
-            ret.blizzards.insert({'v', blizzard.x, next(blizzard.y+1, ret.height)});
-        }
+        switch(blizzard.dir){
+            case '<':   ret.blizzards.insert({'<', next(blizzard.x-1, ret.width), blizzard.y});     break;
+            case '>':   ret.blizzards.insert({'>', next(blizzard.x+1, ret.width), blizzard.y});     break;
+            case '^':   ret.blizzards.insert({'^', blizzard.x, next(blizzard.y-1, ret.height)});    break;
+            case 'v':   ret.blizzards.insert({'v', blizzard.x, next(blizzard.y+1, ret.height)});    break;
+        };
     }
     return ret;
 }
